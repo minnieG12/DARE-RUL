@@ -1,0 +1,40 @@
+# Python environment and caches
+.venv/
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+.pytest_cache/
+
+# Local secrets and editor files
+.env
+.env.*
+!.env.example
+.vscode/
+.idea/
+
+# Keep existing personal/course study documents local.
+# The project-specific notes in docs/project remain trackable.
+/docs/*
+!/docs/project/
+!/docs/project/**
+
+# Keep the original dataset local; use checksums/manifests for integrity.
+/data/CMAPSSData/
+
+# Generated/intermediate outputs; source code stays in src/ and scripts/.
+/data/processed/*
+!/data/processed/.gitkeep
+/data/features/*
+!/data/features/.gitkeep
+/models/*
+!/models/.gitkeep
+/checkpoints/*
+!/checkpoints/.gitkeep
+/logs/*
+!/logs/.gitkeep
+
+# Avoid checking in large binary data artifacts by accident.
+*.parquet
+*.joblib
+*.pkl
+*.pickle

@@ -1,0 +1,77 @@
+name: dare-rul-phase3
+services:
+  spark-master:
+    image: spark:3.5.1
+    container_name: dare-rul-spark-master
+    command: ["/opt/spark/bin/spark-class", "org.apache.spark.deploy.master.Master", "--host", "spark-master", "--port", "7077", "--webui-port", "8080"]
+    ports:
+      - "7077:7077"
+      - "8080:8080"
+    restart: unless-stopped
+    networks:
+      - kafka_shared
+
+  spark-worker:
+    image: spark:3.5.1
+    container_name: dare-rul-spark-worker
+    command: ["/opt/spark/bin/spark-class", "org.apache.spark.deploy.worker.Worker", "spark://spark-master:7077", "--cores", "2", "--memory", "2G", "--webui-port", "8081"]
+    depends_on:
+      - spark-master
+    ports:
+      - "8081:8081"
+    restart: unless-stopped
+    networks:
+      - kafka_shared
+
+  namenode:
+    image: bde2020/hadoop-namenode:2.0.0-hadoop3.2.1-java8
+    container_name: dare-rul-namenode
+    environment:
+      CLUSTER_NAME: dare-rul
+      CORE_CONF_fs_defaultFS: hdfs://namenode:9000
+      HDFS_CONF_dfs_replication: "1"
+    ports:
+      - "9870:9870"
+      - "9000:9000"
+    volumes:
+      - namenode_data:/hadoop/dfs/name
+    restart: unless-stopped
+    networks:
+      - kafka_shared
+
+  datanode:
+    image: bde2020/hadoop-datanode:2.0.0-hadoop3.2.1-java8
+    container_name: dare-rul-datanode
+    environment:
+      SERVICE_PRECONDITION: "namenode:9870"
+      CORE_CONF_fs_defaultFS: hdfs://namenode:9000
+      HDFS_CONF_dfs_replication: "1"
+    ports:
+      - "9864:9864"
+    volumes:
+      - datanode_data:/hadoop/dfs/data
+    depends_on:
+      - namenode
+    restart: unless-stopped
+    networks:
+      - kafka_shared
+
+  spark-job:
+    image: spark:3.5.1
+    profiles: ["job"]
+    # Wrapper creates a writable Ivy cache before Spark resolves --packages.
+    entrypoint: ["/bin/bash", "/opt/phase3/spark_job_entrypoint.sh"]
+    volumes:
+      - ../../scripts/spark:/opt/phase3:ro
+      - ../../results/phase3:/opt/host-results
+    networks:
+      - kafka_shared
+
+networks:
+  kafka_shared:
+    external: true
+    name: dare-rul-phase2_dare-rul-net
+
+volumes:
+  namenode_data:
+  datanode_data:

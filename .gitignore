@@ -38,3 +38,12 @@ __pycache__/
 *.joblib
 *.pkl
 *.pickle
+
+# Local dataset archive
+/data/CMAPSSData.zip
+
+# Generated experiment artifacts; keep summaries in docs/project
+/checkpoints/
+/logs/
+/models/
+/results/

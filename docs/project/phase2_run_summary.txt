@@ -1,33 +1,31 @@
-﻿DARE-RUL - PHASE 2 KAFKA SMOKE TEST
+DARE-RUL - PHASE 2 INITIAL KAFKA RUN
 Date: 2026-10-12
-Status: Initial smoke test passed; full test matrix pending.
-
-Kafka topic: cmapss-telemetry
-Partitions: 4
-Replication factor: 1
+Status: Producer smoke test passed; isolated consumer re-test pending.
 
 Producer:
 Dataset/split: FD001/train
 Messages enqueued: 500
 Delivered: 500
-Failures: 0
+Failed deliveries: 0
 Outstanding after flush: 0
 Elapsed: 5.03 seconds
-Throughput: 99.47 messages/second
+Measured throughput: 99.47 messages/second
 RUL/target fields sent: NO
 
-Consumer:
+Consumer against shared topic:
 Read: 500
 Valid: 500
 Invalid messages/broker errors: 0
 Ordering warnings: 0
 Observed read rate: 93.38 messages/second
 
-Schema tests: 3 passed.
+Important qualification:
+Consumer starts at the earliest offset. The first displayed consumer key was
+FD001_train_2, cycle 1. Since the standard FD001 training data starts with
+engine 1, the topic may have contained messages from a prior replay. The logs
+confirm 500 producer deliveries and 500 valid topic messages separately, but
+do not conclusively prove that the consumer read the exact batch from this run.
+The Phase 2 matrix test uses one unique topic per dataset/split to address this.
 
-A transient Kafka coordinator initialization warning appeared during
-producer startup. The producer retried and ultimately delivered all
-500 messages successfully.
-
-This is an initial FD001/train smoke test. Testing all four datasets
-and relevant train/test scenarios remains pending.
+Schema unit tests: 3 passed. Topic: cmapss-telemetry, four partitions.
+Full tests across FD001-FD004 and train/test remain pending.

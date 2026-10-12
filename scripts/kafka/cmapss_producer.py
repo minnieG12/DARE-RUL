@@ -2,6 +2,7 @@
 from __future__ import annotations
 import argparse
 import json
+import re
 import time
 from pathlib import Path
 from typing import Sequence
@@ -65,9 +66,12 @@ def main() -> int:
     parser.add_argument("--rate", type=float, default=100.0, help="Target messages/second; 0 disables pacing")
     parser.add_argument("--max-messages", type=int, default=0, help="0 sends all rows; use 500 for the first demo")
     parser.add_argument("--bootstrap-servers", default="localhost:9092")
+    parser.add_argument("--topic", default=TOPIC, help="Kafka topic for this replay")
     args = parser.parse_args()
     if args.rate < 0 or args.max_messages < 0:
         parser.error("--rate and --max-messages cannot be negative")
+    if not re.fullmatch(r"[A-Za-z0-9._-]{1,249}", args.topic) or args.topic in {".", ".."}:
+        parser.error("--topic must be a valid Kafka topic name (letters, numbers, dot, underscore, hyphen)")
 
     try:
         from confluent_kafka import Producer
@@ -108,7 +112,7 @@ def main() -> int:
             payload = json.dumps(event, separators=(",", ":"), allow_nan=False)
             while True:
                 try:
-                    producer.produce(TOPIC, key=key.encode("utf-8"), value=payload.encode("utf-8"), on_delivery=delivery_callback)
+                    producer.produce(args.topic, key=key.encode("utf-8"), value=payload.encode("utf-8"), on_delivery=delivery_callback)
                     accepted += 1
                     producer.poll(0)
                     break
@@ -127,7 +131,7 @@ def main() -> int:
     achieved = delivered / elapsed if elapsed > 0 else 0.0
     print("DARE-RUL Kafka producer summary")
     print(f"Dataset/split: {args.dataset}/{args.split}")
-    print(f"Topic: {TOPIC}; bootstrap: {args.bootstrap_servers}")
+    print(f"Topic: {args.topic}; bootstrap: {args.bootstrap_servers}")
     print(f"Rows selected / messages enqueued: {total_to_send} / {accepted}")
     print(f"Delivered: {delivered}; failed: {failed}; outstanding after flush: {outstanding}")
     print(f"Elapsed seconds: {elapsed:.2f}; achieved delivery rate: {achieved:.2f} messages/sec")

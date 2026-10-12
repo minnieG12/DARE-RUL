@@ -35,6 +35,7 @@ def validate_event(event: dict) -> list[str]:
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--bootstrap-servers", default="localhost:9092")
+    parser.add_argument("--topic", default=TOPIC, help="Kafka topic to consume")
     parser.add_argument("--max-messages", type=int, default=20)
     parser.add_argument("--idle-timeout", type=float, default=15.0)
     args = parser.parse_args()
@@ -52,7 +53,7 @@ def main() -> int:
         "auto.offset.reset": "earliest",
         "enable.auto.commit": False,
     })
-    consumer.subscribe([TOPIC])
+    consumer.subscribe([args.topic])
     count = good = bad = ordering_warnings = 0
     last_cycle = {}
     first_message_at = time.perf_counter()
@@ -101,6 +102,7 @@ def main() -> int:
         consumer.close()
     elapsed = max(time.perf_counter() - first_message_at, 1e-9)
     print("DARE-RUL Kafka consumer summary")
+    print(f"Topic: {args.topic}")
     print(f"Read: {count}; valid: {good}; invalid/broker errors: {bad}; ordering warnings: {ordering_warnings}")
     print(f"Observed read rate: {count / elapsed:.2f} messages/sec")
     print("Note: ordering warnings can occur if a topic contains multiple complete replays. Use a fresh topic for a clean first replay test.")

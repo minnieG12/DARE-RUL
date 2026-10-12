@@ -1,7 +1,7 @@
-﻿# Phase 2 — Kafka Telemetry Ingestion: Run Summary
+# Phase 2 — Kafka Telemetry Ingestion: Initial Run Record
 
 Date: 2026-10-12
-Status: Initial smoke test passed; full test matrix pending.
+Status: Producer smoke test passed; first consumer read requires isolated re-test.
 
 ## Environment
 
@@ -17,8 +17,7 @@ Status: Initial smoke test passed; full test matrix pending.
 
 - Dataset: FD001
 - Split: train
-- Requested messages: 500
-- Enqueued: 500
+- Messages enqueued: 500
 - Delivered: 500
 - Failed deliveries: 0
 - Outstanding after flush: 0
@@ -26,9 +25,7 @@ Status: Initial smoke test passed; full test matrix pending.
 - Achieved delivery rate: 99.47 messages/second
 - RUL/target fields sent: No
 
-A transient "Coordinator load in progress" warning appeared while the
-producer was acquiring its idempotence PID. The producer retried and
-the final delivery summary reported 500 successful deliveries.
+A transient `Coordinator load in progress` warning appeared during producer initialization. The producer retried and reported successful delivery of all 500 messages.
 
 ## Consumer Results
 
@@ -38,28 +35,19 @@ the final delivery summary reported 500 successful deliveries.
 - Ordering warnings: 0
 - Observed read rate: 93.38 messages/second
 
-The consumer validated the first 500 messages from the topic. The
-reported read rate is a measurement from this local run, not a
-general scalability result.
+## Important qualification
 
-## Schema and Topic Checks
+The consumer used a fresh consumer group with `auto.offset.reset=earliest` against the shared `cmapss-telemetry` topic. The first displayed key in the consumer log was `FD001_train_2`, cycle 1. Because the standard FD001 training file starts with engine 1, the topic may have contained earlier records from a prior run. Therefore, these logs separately establish (a) that 500 messages were delivered by the producer and (b) that 500 topic messages were valid, but they do not conclusively prove the consumer read the exact batch produced in this run.
+
+The Phase 2 Completion Matrix fixes this by creating a unique, empty topic per dataset/split scenario. Do not use this initial shared-topic run alone as evidence of a fully correlated end-to-end test.
+
+## Other Checks
 
 - Event schema unit tests: 3 passed.
-- Kafka topic verified with four partitions.
-- No RUL or target labels included in telemetry.
-- Sample events used the key format FD001_train_<engine_id>.
-
-## Interpretation
-
-The initial end-to-end Kafka smoke test passed: 500 telemetry events
-were delivered, read and validated successfully.
-
-This is not yet full Phase 2 completion. Remaining work includes
-testing additional FD001-FD004 datasets and train/test inputs, checking
-ordering across clean replays, and recording repeatable throughput
-measurements.
+- Topic verified with four partitions.
+- No RUL/target fields included in telemetry.
 
 ## Evidence Files
 
-- results/phase2/producer_fd001_500.txt
-- results/phase2/consumer_fd001_500.txt
+- `results/phase2/producer_fd001_500.txt`
+- `results/phase2/consumer_fd001_500.txt`

@@ -1,0 +1,139 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "DARE-RUL C-MAPSS Telemetry Event",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "dataset",
+    "split",
+    "engine_id",
+    "cycle",
+    "setting_1",
+    "setting_2",
+    "setting_3",
+    "sensor_1",
+    "sensor_2",
+    "sensor_3",
+    "sensor_4",
+    "sensor_5",
+    "sensor_6",
+    "sensor_7",
+    "sensor_8",
+    "sensor_9",
+    "sensor_10",
+    "sensor_11",
+    "sensor_12",
+    "sensor_13",
+    "sensor_14",
+    "sensor_15",
+    "sensor_16",
+    "sensor_17",
+    "sensor_18",
+    "sensor_19",
+    "sensor_20",
+    "sensor_21"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "integer",
+      "const": 1
+    },
+    "dataset": {
+      "type": "string",
+      "enum": [
+        "FD001",
+        "FD002",
+        "FD003",
+        "FD004"
+      ]
+    },
+    "split": {
+      "type": "string",
+      "enum": [
+        "train",
+        "test"
+      ]
+    },
+    "engine_id": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "cycle": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "setting_1": {
+      "type": "number"
+    },
+    "setting_2": {
+      "type": "number"
+    },
+    "setting_3": {
+      "type": "number"
+    },
+    "sensor_1": {
+      "type": "number"
+    },
+    "sensor_2": {
+      "type": "number"
+    },
+    "sensor_3": {
+      "type": "number"
+    },
+    "sensor_4": {
+      "type": "number"
+    },
+    "sensor_5": {
+      "type": "number"
+    },
+    "sensor_6": {
+      "type": "number"
+    },
+    "sensor_7": {
+      "type": "number"
+    },
+    "sensor_8": {
+      "type": "number"
+    },
+    "sensor_9": {
+      "type": "number"
+    },
+    "sensor_10": {
+      "type": "number"
+    },
+    "sensor_11": {
+      "type": "number"
+    },
+    "sensor_12": {
+      "type": "number"
+    },
+    "sensor_13": {
+      "type": "number"
+    },
+    "sensor_14": {
+      "type": "number"
+    },
+    "sensor_15": {
+      "type": "number"
+    },
+    "sensor_16": {
+      "type": "number"
+    },
+    "sensor_17": {
+      "type": "number"
+    },
+    "sensor_18": {
+      "type": "number"
+    },
+    "sensor_19": {
+      "type": "number"
+    },
+    "sensor_20": {
+      "type": "number"
+    },
+    "sensor_21": {
+      "type": "number"
+    }
+  }
+}

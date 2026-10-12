@@ -1,0 +1,3 @@
+# Phase 2 Kafka ingestion dependency.
+# After installation, refresh requirements-lock.txt and commit it.
+confluent-kafka>=2.6,<3

@@ -62,3 +62,14 @@ Record assumptions, failures, deviations from the protocol, unavailable componen
 
 \- Training RUL cap, preprocessing and scoring protocol must be recorded consistently.
 
+
+## Phase 2 initial Kafka smoke test — 2026-10-12
+
+- Kafka topic verified with four partitions.
+- Event schema tests passed: 3/3.
+- FD001 training telemetry: 500 messages delivered, zero failures.
+- Producer throughput: 99.47 messages/second.
+- Consumer: 500 valid messages, zero invalid/broker errors.
+- Ordering warnings: zero.
+- RUL target labels excluded from telemetry.
+- Remaining: expand tests across FD001-FD004 and train/test inputs.

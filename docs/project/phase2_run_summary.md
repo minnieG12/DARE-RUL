@@ -1,44 +1,65 @@
-# Phase 2 run summary
+﻿# Phase 2 — Kafka Telemetry Ingestion: Run Summary
 
-Dataset/split: FD001/train
+Date: 2026-10-12
+Status: Initial smoke test passed; full test matrix pending.
 
-Messages selected: 500
+## Environment
 
-Topic: cmapss-telemetry
+- Kafka: 3.7.0
+- ZooKeeper: 3.9.3
+- Topic: cmapss-telemetry
+- Partitions: 4
+- Replication factor: 1
+- Windows producer bootstrap: localhost:9092
+- Docker-internal bootstrap: kafka:9093
 
-Partitions: 4
+## Producer Results
 
-Target rate: 100 messages/second
+- Dataset: FD001
+- Split: train
+- Requested messages: 500
+- Enqueued: 500
+- Delivered: 500
+- Failed deliveries: 0
+- Outstanding after flush: 0
+- Elapsed time: 5.03 seconds
+- Achieved delivery rate: 99.47 messages/second
+- RUL/target fields sent: No
 
-Delivered: 500
+A transient "Coordinator load in progress" warning appeared while the
+producer was acquiring its idempotence PID. The producer retried and
+the final delivery summary reported 500 successful deliveries.
 
-Delivery failures: 0
+## Consumer Results
 
-Elapsed time: 5.03 seconds
+- Messages read: 500
+- Valid messages: 500
+- Invalid messages/broker errors: 0
+- Ordering warnings: 0
+- Observed read rate: 93.38 messages/second
 
-Measured throughput: 99.47 messages/second
+The consumer validated the first 500 messages from the topic. The
+reported read rate is a measurement from this local run, not a
+general scalability result.
 
-Consumer messages read: 500 (pending validation)
+## Schema and Topic Checks
 
-Invalid events: 0 (pending validation)
+- Event schema unit tests: 3 passed.
+- Kafka topic verified with four partitions.
+- No RUL or target labels included in telemetry.
+- Sample events used the key format FD001_train_<engine_id>.
 
-Ordering warnings: 0 (pending validation)
+## Interpretation
 
-Target leakage: None
-Evidence
+The initial end-to-end Kafka smoke test passed: 500 telemetry events
+were delivered, read and validated successfully.
 
-* Producer terminal output saved at:
-* Consumer terminal output saved at:
-* Topic description saved at:
+This is not yet full Phase 2 completion. Remaining work includes
+testing additional FD001-FD004 datasets and train/test inputs, checking
+ordering across clean replays, and recording repeatable throughput
+measurements.
 
-## Notes / issues
+## Evidence Files
 
-## Phase 2 exit decision
-
-* \[ ] Broker and topic configuration verified
-* \[ ] Producer delivery complete with no errors
-* \[ ] Consumer schema validation passes
-* \[ ] Ordering check passes on a clean topic/replay
-* \[ ] Throughput and workload documented
-* \[ ] Target labels were not sent in telemetry
-
+- results/phase2/producer_fd001_500.txt
+- results/phase2/consumer_fd001_500.txt

@@ -33,3 +33,11 @@ Can a multi-resolution ensemble of classical ML models, combined using validatio
 
 ## Decisions and limitations
 Record assumptions, failures, deviations from the protocol, unavailable components and why they were deferred.
+
+## Progress update — 2026-10-12
+
+- Git repository created and pushed to GitHub.
+- Python virtual environment successfully ran the C-MAPSS validator.
+- FD001, FD002, FD003 and FD004 passed initial structural validation.
+- SHA-256 manifest generated.
+- Research gap, baseline selection and literature-matrix review remain pending.

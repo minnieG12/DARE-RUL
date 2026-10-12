@@ -1,15 +1,23 @@
-# Phase 1 exit criteria
+# Phase 1 Exit Status
 
-Phase 1 has two parts: data/setup validation (already passed locally) and the research protocol (now seeded in the bundle).
+## Completed technical foundation
 
-- [x] Python 3.10.11, Git, Docker CLI/Compose, Java 11 and WSL2 detected in the uploaded environment report.
-- [x] `pip check` returned `No broken requirements found`.
-- [x] All 12 C-MAPSS train/test/RUL files found.
-- [x] FD001–FD004 initial structural validation passed.
-- [x] SHA-256 manifest generated locally.
-- [ ] Review the populated literature matrix and mark which full-text papers the team has actually read.
-- [ ] Confirm the baseline/target/split/metric protocol with the mentor/team.
-- [ ] Update `research_log.md` with accepted decisions and unresolved questions.
-- [ ] Commit and push the above documentation.
+- Python 3.10.11, Git, Docker CLI/Compose, Java 11 and WSL2 detected.
+- `pip check` returned `No broken requirements found`.
+- All 12 C-MAPSS train/test/RUL files found.
+- FD001–FD004 structural validation passed.
+- SHA-256 manifest generated.
+- Project code and data-ignore rules committed to GitHub.
 
-The literature matrix is a starting point, not a claim that novelty is proven or that a full systematic review has been completed.
+## Research items still open
+
+- Review full text of the closest ensemble/RUL and distributed predictive-maintenance papers; update the matrix with actual reading status.
+- Confirm target definition, RUL cap (including whether to use the conventional 125-cycle cap), engine-separated validation strategy and metrics with the mentor/team.
+- Select and document reproducible baselines and fixed-ensemble comparators.
+- Finalize the research gap and proposed adaptive-gate design only after comparing the closest related methods.
+
+## Decision
+
+**Technical setup/data-validation exit: PASS. Overall research-foundation exit: PENDING.**
+
+Phase 2 and Phase 3 engineering work has proceeded in parallel; it does not close the research decisions above. Do not report the novelty as proven until the closest-work comparison and ablation plan are complete.

@@ -1,53 +1,40 @@
-# Phase 2 — Kafka Telemetry Ingestion: Initial Run Record
+# Phase 2 Run Summary — Kafka Telemetry Ingestion
 
-Date: 2026-10-12
-Status: Producer smoke test passed; first consumer read requires isolated re-test.
+**Status:** Expanded ingestion matrix passed. High-load scalability and failure-recovery experiments remain for Phase 7.
 
-## Environment
+## Setup
 
-- Kafka: 3.7.0
-- ZooKeeper: 3.9.3
-- Topic: cmapss-telemetry
-- Partitions: 4
-- Replication factor: 1
-- Windows producer bootstrap: localhost:9092
-- Docker-internal bootstrap: kafka:9093
+- Kafka: 3.7.0; ZooKeeper: 3.9.3
+- Topic design: a unique topic per dataset/split scenario, 4 partitions, replication factor 1
+- Host bootstrap: `localhost:9092`; Docker-internal bootstrap: `kafka:9093`
+- Replay method: first 500 chronologically sorted rows per scenario from historical C-MAPSS files; this simulates telemetry and is not live aircraft data.
+- Payload excludes RUL/target labels.
 
-## Producer Results
+## Expanded matrix
 
-- Dataset: FD001
-- Split: train
-- Messages enqueued: 500
-- Delivered: 500
-- Failed deliveries: 0
-- Outstanding after flush: 0
-- Elapsed time: 5.03 seconds
-- Achieved delivery rate: 99.47 messages/second
-- RUL/target fields sent: No
+| Dataset | Split | Delivered | Validated | Producer rate (msg/s) | Consumer rate (msg/s) | Ordering warnings | Status |
+|---|---|---:|---:|---:|---:|---:|---|
+| FD001 | train | 500 | 500 | 98.80 | 154.03 | 0 | PASS |
+| FD001 | test  | 500 | 500 | 99.84 | 154.74 | 0 | PASS |
+| FD002 | train | 500 | 500 | 99.85 | 133.15 | 0 | PASS |
+| FD002 | test  | 500 | 500 | 99.69 | 154.57 | 0 | PASS |
+| FD003 | train | 500 | 500 | 99.81 | 153.74 | 0 | PASS |
+| FD003 | test  | 500 | 500 | 99.93 | 154.90 | 0 | PASS |
+| FD004 | train | 500 | 500 | 99.90 | 132.02 | 0 | PASS |
+| FD004 | test  | 500 | 500 | 98.78 | 133.44 | 0 | PASS |
 
-A transient `Coordinator load in progress` warning appeared during producer initialization. The producer retried and reported successful delivery of all 500 messages.
+**Total:** 8/8 scenarios passed; 4,000 messages delivered and 4,000 validated in isolated test topics; no ordering warnings.
 
-## Consumer Results
+## Initial shared-topic run (historical caveat)
 
-- Messages read: 500
-- Valid messages: 500
-- Invalid messages/broker errors: 0
-- Ordering warnings: 0
-- Observed read rate: 93.38 messages/second
+The first smoke test reported 500 deliveries, but its consumer used `auto.offset.reset=earliest` on the shared topic and first displayed key `FD001_train_2`, cycle 1. That run alone did not prove it consumed the exact batch just produced. The unique-topic matrix above resolves this issue for the eight tested scenarios.
 
-## Important qualification
+## What this proves—and what it does not
 
-The consumer used a fresh consumer group with `auto.offset.reset=earliest` against the shared `cmapss-telemetry` topic. The first displayed key in the consumer log was `FD001_train_2`, cycle 1. Because the standard FD001 training file starts with engine 1, the topic may have contained earlier records from a prior run. Therefore, these logs separately establish (a) that 500 messages were delivered by the producer and (b) that 500 topic messages were valid, but they do not conclusively prove the consumer read the exact batch produced in this run.
+It demonstrates basic Kafka producer/consumer integration, schema validation, per-key cycle ordering, target exclusion and measured local rates for 500-event batches. These rates are run-specific smoke-test measurements, not a formal throughput/latency benchmark. Phase 7 must run controlled repeated tests at multiple input rates and record resource usage and latency.
 
-The Phase 2 Completion Matrix fixes this by creating a unique, empty topic per dataset/split scenario. Do not use this initial shared-topic run alone as evidence of a fully correlated end-to-end test.
+## Evidence
 
-## Other Checks
-
-- Event schema unit tests: 3 passed.
-- Topic verified with four partitions.
-- No RUL/target fields included in telemetry.
-
-## Evidence Files
-
-- `results/phase2/producer_fd001_500.txt`
-- `results/phase2/consumer_fd001_500.txt`
+- `docs/project/phase2_matrix_results.csv`
+- `docs/project/phase2_matrix_test.md`
+- Local detailed logs: `results/phase2/matrix_<run-id>/` (ignored by Git)

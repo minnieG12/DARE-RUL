@@ -59,3 +59,13 @@ Can a multi-resolution ensemble of classical ML models, combined using validatio
 - HDFS Parquet and both query checkpoint paths were listed; 5 event-validation tests passed.
 - See `phase3_run_summary.md` and `phase3_runbook.md`.
 - Phase 3 demonstrates a local integration only (one Spark worker, one HDFS DataNode). Scalability/recovery testing is still pending.
+
+
+## Phase 4 record — 2026-10-13
+- Offline multi-resolution features generated for FD001–FD004.
+- Windows: 15 and 30 cycles.
+- Five unit tests passed; output-integrity validation passed.
+- Generated totals: 160,359 training rows, 104,897 test-trajectory rows, and 707 final test rows with 707 separate targets.
+- Generated feature data remains local and excluded from Git.
+- This milestone validates offline feature generation, not predictive accuracy, research novelty, or distributed scalability.
+- Phase 1 research decisions on the RUL cap, validation split, metrics and baselines remain open.

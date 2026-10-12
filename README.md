@@ -18,6 +18,7 @@
 - Dataset structure: FD001–FD004 passed initial validation; raw files remain local and are excluded from Git.
 - Phase 2: 8/8 dataset/split ingestion smoke tests passed (500 events each).
 - Phase 3: one 500-event FD001/train topic passed Spark 3.5.1/HDFS processing; 500 valid rows, zero invalid rows, duplicates and ordering warnings; five event-validation unit tests passed.
+- Phase 4 (offline feature generation): FD001–FD004 processed using 15-cycle and 30-cycle temporal windows. Five unit tests and the output-integrity validator passed. Predictive accuracy and distributed feature-computation performance remain unevaluated.
 
 ## Important limitations
 The Phase 2 test matrix is an ingestion smoke test, not a scalability benchmark. Phase 3 is one local Spark worker and one HDFS DataNode; it is not a distributed scaling/failure-recovery study. The Phase 1 research protocol still requires final review of the closest literature, baseline choices, RUL target cap and split/metric protocol.

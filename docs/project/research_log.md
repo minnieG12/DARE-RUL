@@ -43,13 +43,13 @@ Can a multi-resolution ensemble of classical ML models, combined using validatio
 - Use engine-separated validation; keep held-out test labels out of model/gate selection.
 - Confirm training RUL cap, preprocessing and scoring protocol before final experiments.
 
-## Phase 2 record — 2026-10-12
+## Phase 2 record
 - Initial shared-topic smoke test had an offset ambiguity; it was not used as the sole proof of end-to-end correctness.
 - Expanded matrix then passed 8/8 isolated dataset/split scenarios (FD001–FD004, train/test), 500 messages per scenario; 4,000 delivered and validated, zero ordering warnings.
 - See `phase2_matrix_results.csv` and `phase2_run_summary.md`.
 - These are ingestion smoke tests, not the Phase 7 scalability benchmark.
 
-## Phase 3 record — 2026-10-13
+## Phase 3 record
 - Spark 3.5.1 and the Kafka connector started successfully after configuring a writable Ivy cache under `/tmp/dare-rul-ivy`.
 - HDFS project directories were prepared for the Spark user using the corrected Hadoop CLI syntax.
 - Run: `fd001_train_hdfsfix_20261013_031145`.
@@ -61,7 +61,7 @@ Can a multi-resolution ensemble of classical ML models, combined using validatio
 - Phase 3 demonstrates a local integration only (one Spark worker, one HDFS DataNode). Scalability/recovery testing is still pending.
 
 
-## Phase 4 record — 2026-10-13
+## Phase 4 record
 - Offline multi-resolution features generated for FD001–FD004.
 - Windows: 15 and 30 cycles.
 - Five unit tests passed; output-integrity validation passed.
@@ -70,7 +70,7 @@ Can a multi-resolution ensemble of classical ML models, combined using validatio
 - This milestone validates offline feature generation, not predictive accuracy, research novelty, or distributed scalability.
 - Phase 1 research decisions on the RUL cap, validation split, metrics and baselines remain open.
 
-## Phase 5 record — 2026-10-13
+## Phase 5 record
 - Completed 16 baseline fits: RF15, HGB15, RF30 and HGB30 across FD001–FD004.
 - Six Phase 5 unit tests passed.
 - Validation split: 80/20 by engine, random seed 42.
@@ -83,3 +83,15 @@ Can a multi-resolution ensemble of classical ML models, combined using validatio
 - Complete results: `phase5_run_summary.md`. Local metrics and prediction files are under `results/phase5/`; trained models are under `models/phase5/`.
 - This is an internal validation baseline, not an official test evaluation, exact reproduction of a published paper, or proof of research novelty.
 - The final target cap and evaluation protocol remain provisional pending literature review and mentor/team confirmation.
+
+## Phase 6 record
+- The complete OOF-calibrated adaptive ensemble run passed across FD001–FD004.
+- Ten Phase 6 unit tests passed.
+- Four-fold engine-grouped OOF predictions were generated for RF15, HGB15, RF30 and HGB30.
+- Compared individual experts, equal averaging, static OOF-reliability weighting and adaptive error gating.
+- Verified 28 validation metric rows, 217,196 combined prediction rows and 16 fitted error gates.
+- Official NASA test RUL files were not loaded.
+- Adaptive performance: lowest row-weighted RMSE on FD002, FD003 and FD004; HGB30 remained best on FD001. The NASA score results were not uniformly best for the adaptive gate.
+- Results: `docs/project/phase6_run_summary.md`.
+- The adaptive gate remains a candidate approach, not a proven novel contribution.
+- Phase 1 literature review, target-cap sensitivity and final evaluation-protocol decisions remain open.

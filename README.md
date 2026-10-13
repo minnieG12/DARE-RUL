@@ -20,6 +20,7 @@
 - Phase 3: one 500-event FD001/train topic passed Spark 3.5.1/HDFS processing; 500 valid rows, zero invalid rows, duplicates and ordering warnings; five event-validation unit tests passed.
 - Phase 4: Multi-resolution temporal features generated for FD001–FD004 with 15-cycle and 30-cycle windows; five unit tests and output read-back validation passed. Predictive accuracy and distributed scalability remain unevaluated.
 - Phase 5: Four classical ML baseline variants trained across FD001–FD004 using engine-separated validation. Six unit tests passed and 16 model fits completed. Results are recorded in docs/project/phase5_run_summary.md. Official test labels remain unused.
+- Phase 6: Four-fold engine-grouped OOF predictions used to calibrate a candidate adaptive RUL ensemble. Compared four individual experts, equal averaging and static reliability weighting across FD001–FD004. Ten unit tests passed; results are recorded in docs/project/phase6_run_summary.md. Official test labels remain unused.
 
 ## Important limitations
 The Phase 2 test matrix is an ingestion smoke test, not a scalability benchmark. Phase 3 is one local Spark worker and one HDFS DataNode; it is not a distributed scaling/failure-recovery study. The Phase 1 research protocol still requires final review of the closest literature, baseline choices, RUL target cap and split/metric protocol.

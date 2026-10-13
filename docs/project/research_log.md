@@ -69,3 +69,17 @@ Can a multi-resolution ensemble of classical ML models, combined using validatio
 - Generated feature data remains local and excluded from Git.
 - This milestone validates offline feature generation, not predictive accuracy, research novelty, or distributed scalability.
 - Phase 1 research decisions on the RUL cap, validation split, metrics and baselines remain open.
+
+## Phase 5 record — 2026-10-13
+- Completed 16 baseline fits: RF15, HGB15, RF30 and HGB30 across FD001–FD004.
+- Six Phase 5 unit tests passed.
+- Validation split: 80/20 by engine, random seed 42.
+- RUL cap used: 125 cycles; this remains provisional pending literature review and protocol approval.
+- Predictors excluded `engine_id` and `cycle`.
+- Metrics: RMSE, MAE and PHM08/NASA asymmetric score.
+- Official test RUL files were not loaded.
+- HGB30 achieved the lowest validation RMSE on FD001, FD002 and FD004; RF30 achieved the lowest on FD003.
+- The 30-cycle window achieved lower RMSE than the corresponding 15-cycle window for both model types on all four subsets.
+- Complete results: `phase5_run_summary.md`. Local metrics and prediction files are under `results/phase5/`; trained models are under `models/phase5/`.
+- This is an internal validation baseline, not an official test evaluation, exact reproduction of a published paper, or proof of research novelty.
+- The final target cap and evaluation protocol remain provisional pending literature review and mentor/team confirmation.

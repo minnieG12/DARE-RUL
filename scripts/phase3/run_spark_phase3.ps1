@@ -20,21 +20,29 @@ Write-Host "Unique run label: $RunLabel"
 Write-Host "Expected messages: $ExpectedMessages"
 Write-Host "Submitting a Spark Structured Streaming job to spark://spark-master:7077..."
 
-& docker.exe compose -f $Compose --profile job run --rm spark-job `
-    --master spark://spark-master:7077 `
-    --deploy-mode client `
-    --packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.1 `
-    --conf spark.executor.instances=1 `
-    --conf spark.executor.cores=2 `
-    --conf spark.executor.memory=2g `
-    --conf spark.driver.memory=2g `
-    $JobScript `
-    --topic $Topic `
-    --run-label $RunLabel `
-    --expected-messages $ExpectedMessages `
-    --max-offsets-per-trigger $MaxOffsetsPerTrigger
+$PreviousErrorActionPreference = $ErrorActionPreference
+try {
+    $ErrorActionPreference = 'Continue'
+    & docker.exe compose -f $Compose --profile job run --rm spark-job `
+        --master spark://spark-master:7077 `
+        --deploy-mode client `
+        --packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.1 `
+        --conf spark.executor.instances=1 `
+        --conf spark.executor.cores=2 `
+        --conf spark.executor.memory=2g `
+        --conf spark.driver.memory=2g `
+        $JobScript `
+        --topic $Topic `
+        --run-label $RunLabel `
+        --expected-messages $ExpectedMessages `
+        --max-offsets-per-trigger $MaxOffsetsPerTrigger
+    $DockerExitCode = $LASTEXITCODE
+}
+finally {
+    $ErrorActionPreference = $PreviousErrorActionPreference
+}
 
-if ($LASTEXITCODE -ne 0) {
-    throw "Spark job failed. Review the output. Use a new RunLabel for a retry; do not delete HDFS checkpoints blindly."
+if ($DockerExitCode -ne 0) {
+    throw "Spark job failed with Docker exit code $DockerExitCode. Review the benchmark Spark log. Use a new RunLabel for a retry; do not delete HDFS checkpoints blindly."
 }
 Write-Host "Spark job exited successfully. Run the HDFS output verification script next."

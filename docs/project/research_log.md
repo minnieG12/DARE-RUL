@@ -1,8 +1,8 @@
-# DARE-RUL Research and Experiment Log
+﻿# DARE-RUL Research and Experiment Log
 
 ## Project details
-- Project: DARE-RUL — Distributed, Multi-Resolution Adaptive Ensemble for Remaining Useful Life Prediction
-- Dataset: NASA C-MAPSS FD001–FD004
+- Project: DARE-RUL â€” Distributed, Multi-Resolution Adaptive Ensemble for Remaining Useful Life Prediction
+- Dataset: NASA C-MAPSS FD001â€“FD004
 - Team / mentor: fill in
 - Start date: 2026-10
 
@@ -32,7 +32,7 @@ Can a multi-resolution ensemble of classical ML models, combined using validatio
 |---|---|---|---|---|---:|---:|---:|---:|---|
 | EXP-001 | | | | | | | | | |
 
-## Phase 0–1 record
+## Phase 0â€“1 record
 - Environment checks and dataset structural validation passed.
 - All 12 C-MAPSS train/test/RUL files passed the initial structural validation; SHA-256 manifest generated.
 - A 29-record literature matrix was seeded for review; full-text review, final baseline and mentor/team protocol confirmation remain open.
@@ -45,7 +45,7 @@ Can a multi-resolution ensemble of classical ML models, combined using validatio
 
 ## Phase 2 record
 - Initial shared-topic smoke test had an offset ambiguity; it was not used as the sole proof of end-to-end correctness.
-- Expanded matrix then passed 8/8 isolated dataset/split scenarios (FD001–FD004, train/test), 500 messages per scenario; 4,000 delivered and validated, zero ordering warnings.
+- Expanded matrix then passed 8/8 isolated dataset/split scenarios (FD001â€“FD004, train/test), 500 messages per scenario; 4,000 delivered and validated, zero ordering warnings.
 - See `phase2_matrix_results.csv` and `phase2_run_summary.md`.
 - These are ingestion smoke tests, not the Phase 7 scalability benchmark.
 
@@ -62,7 +62,7 @@ Can a multi-resolution ensemble of classical ML models, combined using validatio
 
 
 ## Phase 4 record
-- Offline multi-resolution features generated for FD001–FD004.
+- Offline multi-resolution features generated for FD001â€“FD004.
 - Windows: 15 and 30 cycles.
 - Five unit tests passed; output-integrity validation passed.
 - Generated totals: 160,359 training rows, 104,897 test-trajectory rows, and 707 final test rows with 707 separate targets.
@@ -71,7 +71,7 @@ Can a multi-resolution ensemble of classical ML models, combined using validatio
 - Phase 1 research decisions on the RUL cap, validation split, metrics and baselines remain open.
 
 ## Phase 5 record
-- Completed 16 baseline fits: RF15, HGB15, RF30 and HGB30 across FD001–FD004.
+- Completed 16 baseline fits: RF15, HGB15, RF30 and HGB30 across FD001â€“FD004.
 - Six Phase 5 unit tests passed.
 - Validation split: 80/20 by engine, random seed 42.
 - RUL cap used: 125 cycles; this remains provisional pending literature review and protocol approval.
@@ -85,7 +85,7 @@ Can a multi-resolution ensemble of classical ML models, combined using validatio
 - The final target cap and evaluation protocol remain provisional pending literature review and mentor/team confirmation.
 
 ## Phase 6 record
-- The complete OOF-calibrated adaptive ensemble run passed across FD001–FD004.
+- The complete OOF-calibrated adaptive ensemble run passed across FD001â€“FD004.
 - Ten Phase 6 unit tests passed.
 - Four-fold engine-grouped OOF predictions were generated for RF15, HGB15, RF30 and HGB30.
 - Compared individual experts, equal averaging, static OOF-reliability weighting and adaptive error gating.
@@ -95,3 +95,13 @@ Can a multi-resolution ensemble of classical ML models, combined using validatio
 - Results: `docs/project/phase6_run_summary.md`.
 - The adaptive gate remains a candidate approach, not a proven novel contribution.
 - Phase 1 literature review, target-cap sensitivity and final evaluation-protocol decisions remain open.
+
+<!-- BEGIN DARE-RUL PHASE 7 UPDATE -->
+### Phase 7 engineering benchmark update - 2026-10-13
+
+- Focused Phase 7 experiment tests passed in this run; model run metadata reports PASS.
+- Kafka -> Spark Structured Streaming -> HDFS replay/drain benchmark passed for the 500, 5,000 and 20,000-message workloads. See docs/project/phase7_streaming_benchmark_summary.md for the CSV-derived measurements and data-quality checks.
+- The throughput values are end-to-end replay/drain rates on the current single-Spark-worker/single-DataNode setup; do not infer horizontal scaling, concurrent real-time operation, or fault recovery.
+- The official C-MAPSS test RUL files were not used for model selection. Before final test evaluation, resolve and document the provisional RUL cap and freeze the model-selection protocol. Then train the selected pipeline using permitted training data and evaluate once against official test targets.
+<!-- END DARE-RUL PHASE 7 UPDATE -->
+

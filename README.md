@@ -1,76 +1,55 @@
 # DARE-RUL
 
-**DARE-RUL** (Distributed, Multi-Resolution Adaptive Ensemble for Remaining Useful Life Prediction) is a research prototype for remaining useful life (RUL) estimation using NASA C-MAPSS FD001–FD004. It combines multi-resolution temporal features, classical machine-learning experts, an adaptive ensemble candidate, and a Kafka–Spark–HDFS telemetry pipeline.
+**DARE-RUL** (Distributed, Multi-Resolution Adaptive Ensemble for Remaining Useful Life Prediction) is a research prototype for estimating remaining useful life (RUL) on the NASA C-MAPSS FD001–FD004 simulated turbofan benchmark. It combines a Kafka → Spark Structured Streaming → HDFS/Parquet data path with multi-resolution temporal features, classical ML experts, adaptive ensemble experiments, and an interactive research dashboard.
 
-> **Current research status:** Phases 0 and 2–8 have recorded implementation milestones. Phase 1 (research protocol and closest-related-work review) remains open. Phase 8 official test-cohort scoring has been executed, but prior protocol-approval evidence has not yet been independently verified; treat those scores as exploratory until that status is resolved. This is a research benchmark, not a validated aviation maintenance system.
+## Pipeline overview
 
-## Project pipeline
+1. Environment and repository setup
+2. Dataset verification and research protocol
+3. Kafka telemetry ingestion
+4. Spark Structured Streaming and HDFS/Parquet
+5. Multi-resolution temporal features
+6. Baseline models
+7. Adaptive ensemble V1
+8. Ablation and streaming benchmark
+9. Frozen evaluation and maintenance demonstration
+10. Adaptive ensemble V2, dashboard and SHAP exploration
+11. Research closure and final acceptance
 
-| Phase | Name | Current status | Main evidence | Remaining work |
-|---|---|---|---|---|
-| 0 | Environment and repository setup | **PASS** | Python 3.10.11 virtual environment, Git, Docker/Compose, Java 11 and WSL2 checks recorded. | Keep setup instructions and ignore rules reproducible; finish repository hygiene at final acceptance. |
-| 1 | Dataset verification and research protocol | **OPEN** | All 12 C-MAPSS train/test/RUL files were structurally checked and a SHA-256 manifest was generated; a preliminary literature matrix exists. | Complete the closest-paper review, research-gap statement, RUL-cap decision, split/metric protocol and any genuine mentor/team approval record. |
-| 2 | Kafka telemetry ingestion | **PASS** | Eight isolated scenarios (FD001–FD004 × train/test), 500 events each; 4,000 events validated with zero ordering warnings. | Preserve repeatable commands and run evidence. |
-| 3 | Spark Structured Streaming and HDFS/Parquet | **PASS — local integration** | One FD001 training replay produced 500 valid Parquet rows; no invalid or duplicate engine-cycle pairs or ordering warnings were reported. Five event-validation tests passed. | Document single-worker/single-DataNode limits; resolve the under-replication warning against configured HDFS replication. |
-| 4 | Multi-resolution temporal features | **PASS** | 15- and 30-cycle feature views generated for all four subsets; 152 feature columns were reported; five tests and output read-back validation passed. | Keep the feature dictionary and future-information/leakage boundaries explicit. |
-| 5 | Classical ML baselines | **PASS — validation only** | RF15, HGB15, RF30 and HGB30 fitted across FD001–FD004; 16 fits, engine-level 80/20 validation and six tests recorded. | Preserve configuration and validation results; reconcile historical provisional-protocol language after the research decision. |
-| 6 | OOF-calibrated adaptive ensemble | **PASS — candidate method** | Four-fold engine-grouped OOF predictions used to compare individual experts, equal averaging, static reliability weighting and adaptive gating; ten tests recorded. | Harden gating with independent/cross-fitted evaluation, explicit fallback rules and additional edge-case tests; do not claim superiority without supporting results. |
-| 7 | Ablation, robustness and streaming benchmark | **PASS — exploratory** | Model-side experiments include ablation, synthetic feature noise, bootstrap and importance analysis; replay/drain tests passed for 500, 5,000 and 20,000 messages. | Preserve measured evidence and avoid claiming production real-time behaviour, horizontal scalability or fault recovery from the single-worker setup. |
-| 8 | Frozen test evaluation and maintenance demo | **EXECUTED; pushed and tagged** | Commit `8d6401c` and tag `phase-8-complete`; 46 tests passed; 707 prediction rows, 707 scored rows, four metric rows, 20 OOF audit rows and 707 maintenance recommendations. | Standardize this README and finish local documentation cleanup. Verify genuine pre-scoring protocol approval; otherwise retain exploratory status. Do not tune on these test scores. |
-| 9 | Ensemble V2, interactive dashboard and SHAP | **PLANNED** | Not yet implemented as a complete interactive dashboard. | Improve and test the adaptive gate; build UI, evaluation/robustness/pipeline plots, local/global SHAP for the complete ensemble function, export and data-quality handling. |
-| 10 | Research closure (original Phase 1) | **PLANNED** | Preliminary literature matrix and research notes exist. | Complete related-work reading, gap, protocol/cap decision and consistent research log. |
-| 11 | Final integration and acceptance | **PLANNED** | Final acceptance not yet claimed. | Run end-to-end checks, verify docs/GitHub/tags, check no data/secrets/generated artifacts were committed, and rehearse the demo. |
+The phase names above are a navigation map; detailed milestones and their exit criteria are recorded in `docs/project/`.
 
-## Phase 8 test-cohort results
+## Current verified phase status
 
-The frozen Phase 8 run used a training RUL cap of 125 cycles and scored the official C-MAPSS test targets after writing the prediction-only output. The evaluation summary reports these results:
+| Phase | Status | Evidence and remaining work |
+|---|---|---|
+| 0 — Environment and Git | PASS | Python 3.10.11 virtual environment, Git, Docker/Compose, Java and WSL2 checked. Finish only the final clean-repository and fresh-shell reproducibility review. |
+| 1 — Dataset and research protocol | OPEN | Dataset files were structurally validated and a literature matrix exists. The close-paper review, research gap, cap sensitivity and final evaluation protocol still need closure. |
+| 2 — Kafka ingestion | PASS | Eight FD001–FD004 × train/test smoke scenarios, 500 events each; 4,000 events validated. |
+| 3 — Spark/HDFS | PASS WITH LOCAL CONFIGURATION FOLLOW-UP | 500-event Spark/HDFS integration/read-back passed. The current cluster has one Spark worker and one DataNode. An inspection found blocks requesting three replicas despite only one live replica; align the local profile or add DataNodes before making redundancy claims. |
+| 4 — Temporal features | PASS | 15-cycle and 30-cycle feature views built; five feature tests passed and saved Parquet outputs are present. |
+| 5 — Baselines | PASS — VALIDATION | RF15, HGB15, RF30 and HGB30 were compared across all four subsets with an engine-level validation split; 16 fits and six tests passed. The cap/protocol remains a research decision. |
+| 6 — Adaptive ensemble V1 | PASS — CANDIDATE METHOD | Four-fold engine-grouped OOF reliability/error gating was compared with individual experts and fixed ensembles; ten tests passed. The method is not yet an established novel or universal winner. |
+| 7 — Ablation and streaming benchmark | PASS — LOCAL BENCHMARK | Model-side analyses and 500/5,000/20,000-message replay/drain tests completed. Reported rows/s were 17.05, 84.25 and 131.78; each run had matching row counts and zero invalid, duplicate or cycle-order-warning records. |
+| 8 — Frozen test evaluation | PASS — PUSHED/TAGGED | Commit `8d6401c`, tag `phase-8-complete`; 707 predictions and scores, four metric rows, 20 OOF audit rows, plus the maintenance demo. Protocol approval evidence remains unverified, so the scores must be treated as exploratory until reconciled. |
+| 9 — V2, dashboard and SHAP | IMPLEMENTED; ACCEPTANCE IN PROGRESS | V2 comparison and Streamlit dashboard code are pushed; `phase-9-complete` exists at `8077c91`. The 53-test run passed and parity passed on one engine from each subset. The recorded V2 RMSE and MAE are slightly worse than V1 on all four subsets; the live SHAP calculation and current UI polish still need hands-on verification. |
+| 10 — Research closure | OPEN | The intended literature/research documents have not been completed by the commands shown in the latest transcript; the attempted commit had no staged research changes. |
+| 11 — Final acceptance | OPEN | A commit named `phase-11: complete final integration and acceptance checks` added only two planning documents. It did not, by itself, complete the end-to-end acceptance tests. |
 
-| Subset | Frozen method | Test engines | RMSE | MAE | NASA score sum |
-|---|---|---:|---:|---:|---:|
-| FD001 | `cross_window_no_disagreement` | 100 | 16.9346 | 12.4489 | 587.3681 |
-| FD002 | `cross_window_error_gate` | 259 | 29.0353 | 20.3818 | 10330.7444 |
-| FD003 | `cross_window_error_gate` | 100 | 18.2843 | 13.0945 | 1256.5902 |
-| FD004 | `cross_window_no_disagreement` | 248 | 29.9007 | 22.3560 | 7928.2319 |
+## Research and evaluation boundaries
 
-These are scores from the recorded frozen run, not proof of universal superiority or real-aircraft readiness. Because prior approval of the RUL cap and protocol has not been independently verified, treat them as **exploratory** unless genuine evidence confirms approval before scoring. Do not use this already-scored cohort for repeated tuning while presenting it as untouched.
+- Phase 8 official test scores are a frozen historical result. New model design choices must use training/validation evidence rather than repeated tuning on those scores.
+- The recorded V2 validation run reuses the earlier Phase 6 validation cohort; it is exploratory rather than an independent selection estimate.
+- The streaming throughput numbers are local replay/drain measurements, not proof of concurrent real-time operation, horizontal scaling or fault recovery.
+- The dashboard is a research tool for exploring predictions and model explanations. Its priority bands are configurable demo categories, not operational maintenance instructions.
 
-## Maintenance demonstration
+## Where to start
 
-The Phase 8 maintenance demo writes `results/phase8/maintenance_recommendations.csv` from the saved predictions. Its `CRITICAL`, `HIGH` and `MONITOR` bands are illustrative project rules only; they are **not approved aviation maintenance instructions**.
+- `docs/project/research_log.md`: experiment history and open decisions.
+- `docs/project/phase5_protocol.md` and `phase5_run_summary.md`: baseline setup and evidence.
+- `docs/project/phase6_protocol.md` and `phase6_run_summary.md`: adaptive ensemble V1.
+- `docs/project/phase7_streaming_benchmark_summary.md`: recorded replay/drain benchmark values.
+- `docs/project/phase8_final_test_summary.md`: saved evaluation results and caveats.
+- `docs/project/phase9_v2_results_interpretation.md`: V1 versus V2 interpretation and recommended next experiment.
+- `docs/project/dashboard_ui_polish.md`: dashboard UI changes in the companion polish pack.
 
-## Repository guide
-
-- `docs/project/architecture/phase_map.md` — phase map and architecture.
-- `docs/project/data_validation_summary.md` — initial dataset validation.
-- `docs/project/phase1_checklist.md`, `phase1_exit_criteria.md` and `docs/project/literature/` — open research/protocol work.
-- `docs/project/phase2_*` — Kafka schema, test matrix, scope and results.
-- `docs/project/phase3_*` — Spark/HDFS scope, runbook, validation and troubleshooting.
-- `docs/project/phase4_*` — feature build, validation and runbook.
-- `docs/project/phase5_*` — baseline protocols, runbook and validation results.
-- `docs/project/phase6_*` — OOF ensemble protocol, results, runbook and troubleshooting.
-- `docs/project/phase7_*` — ablation/robustness and streaming benchmark evidence.
-- `docs/project/phase8_*` — frozen test-evaluation protocol, scope, runbook and summary.
-- `docs/project/research_log.md` — chronological decisions, experiments and limitations.
-
-## Reproduce the current checks
-
-From the repository root in PowerShell, with the project virtual environment created and dependencies installed:
-
-```powershell
-.\.venv\Scripts\python.exe -m pytest -q
-.\.venv\Scripts\python.exe .\scripts\phase8\maintenance_demo.py
-```
-
-Phase 8's official test evaluation has already been run. Do not rerun or retune it just to update the documentation or dashboard.
-
-## Data and artifact policy
-
-Raw C-MAPSS data, virtual environments, generated feature data, trained model files, local experiment outputs, caches and logs should remain outside Git unless a specific small artifact is intentionally curated for version control. Never commit credentials or secrets.
-
-## Important limitations
-
-- Phase 3 is a local integration on one Spark worker and one HDFS DataNode, not a production distributed or fault-tolerant deployment.
-- Phase 7 throughput results are local replay/drain measurements; they do not establish concurrent real-time operation or horizontal scaling.
-- Phase 6 is a candidate adaptive method. Its contribution must be assessed against baselines using a leakage-safe, documented validation protocol.
-- Phase 8 risk tiers are illustrative only and are not maintenance advice.
-- The original Phase 1 research protocol and novelty assessment remain open; no first-ever or universal-superiority claim is made.
+Raw datasets, virtual environments, trained models and generated experiment outputs remain local and should not be added to Git.

@@ -1,9 +1,8 @@
-﻿# Phase 3 — Local HDFS replication profile
+# Phase 3 — Local HDFS Replication Profile
 
-- Purpose: document the local Kafka/Spark/HDFS integration environment.
-- DataNodes: 1.
-- Default replication factor: 1.
-- The previous inspection found existing files with replication target 3.
-- This profile aligns local replica metadata with the single-DataNode setup.
-- This validates local data integrity; it does not demonstrate redundancy or fault recovery.
-- Record the verified under-replicated, missing and corrupt block counts below after the inspection.
+- **Profile:** local development integration; one HDFS DataNode.
+- **Default replication factor:** 1.
+- **Action recorded:** existing `/dare-rul` file replication targets were aligned to the single-DataNode profile with `hdfs dfs -setrep -w 1 -R /dare-rul`.
+- **Verification:** the subsequent `hdfs fsck /dare-rul -files -blocks` summary reported 0 under-replicated blocks, 0 missing blocks, 0 corrupt blocks, and `The filesystem under path '/dare-rul' is HEALTHY`.
+- **Interpretation:** this establishes local HDFS file/block integrity for the one-DataNode configuration. It does **not** establish redundant storage, horizontal scaling, high availability or node-loss recovery.
+- **Recheck command:** `docker exec dare-rul-namenode hdfs fsck /dare-rul -files -blocks`.

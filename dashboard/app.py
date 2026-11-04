@@ -15,6 +15,8 @@ if str(ROOT) not in sys.path:
 
 from dashboard.data import EXPERTS, SUBSETS, filtered_fleet, load_phase8_artifacts  # noqa: E402
 from dashboard.pipeline import read_streaming_benchmark  # noqa: E402
+from dashboard.navigation import DASHBOARD_PAGES, DEFAULT_DASHBOARD_PAGE, PAGE_FLOW_DESCRIPTION  # noqa: E402
+from dashboard.evaluation import build_v1_v2_comparison, V2_NESTED_METHOD, V2_LEGACY_METHOD  # noqa: E402
 
 st.set_page_config(page_title="DARE-RUL | RUL Explorer", page_icon="⚙️", layout="wide")
 st.markdown(
@@ -44,6 +46,7 @@ st.markdown(
     '<div class="dare-subtitle">NASA C-MAPSS FD001–FD004 • Predictive-maintenance research and fleet analytics</div>',
     unsafe_allow_html=True,
 )
+st.caption("Start with model performance, then explore engine predictions, ensemble decisions, SHAP explanations and pipeline evidence.")
 
 try:
     artifacts = load_phase8_artifacts(ROOT)
@@ -59,10 +62,15 @@ with st.sidebar:
     risks = st.multiselect("Demonstration tier", risk_choices, default=risk_choices)
     query = st.text_input("Find an engine", placeholder="Enter subset or engine ID")
     st.divider()
+    st.markdown("### Dashboard pages")
     page = st.radio(
-        "View",
-        ["Fleet overview", "Model evaluation", "Ensemble behaviour", "Explainability (SHAP)", "Pipeline performance", "Project notes"],
+        "Choose a view",
+        DASHBOARD_PAGES,
+        index=DASHBOARD_PAGES.index(DEFAULT_DASHBOARD_PAGE),
+        key="dare_dashboard_page_v2",
+        help=PAGE_FLOW_DESCRIPTION,
     )
+    st.caption("Suggested flow: evaluate → inspect engines → understand the ensemble → explain → review pipeline.")
 
 if not subsets:
     st.info("Choose at least one dataset subset to populate the explorer.")
@@ -73,32 +81,6 @@ fleet = filtered_fleet(artifacts, subsets, risks, query)
 
 def _format_engine_count(value: int) -> str:
     return f"{int(value):,}"
-
-
-def _v1_v2_comparison(metrics: pd.DataFrame, selected_subsets: Iterable[str]) -> pd.DataFrame:
-    required = {"subset", "method", "rmse", "mae"}
-    if not required.issubset(metrics.columns):
-        return pd.DataFrame()
-    frame = metrics.loc[
-        metrics["subset"].isin(list(selected_subsets))
-        & metrics["method"].isin(["V1_adaptive_error_gate", "V2_bounded_shrunk"])
-    ].copy()
-    if frame.empty:
-        return pd.DataFrame()
-    wide = frame.pivot(index="subset", columns="method", values=["rmse", "mae"])
-    needed = [(m, method) for m in ("rmse", "mae") for method in ("V1_adaptive_error_gate", "V2_bounded_shrunk")]
-    if any(c not in wide.columns for c in needed):
-        return pd.DataFrame()
-    result = pd.DataFrame(index=wide.index)
-    result["V1 RMSE"] = wide[("rmse", "V1_adaptive_error_gate")]
-    result["V2 RMSE"] = wide[("rmse", "V2_bounded_shrunk")]
-    result["V2 − V1 RMSE"] = result["V2 RMSE"] - result["V1 RMSE"]
-    result["V1 MAE"] = wide[("mae", "V1_adaptive_error_gate")]
-    result["V2 MAE"] = wide[("mae", "V2_bounded_shrunk")]
-    result["V2 − V1 MAE"] = result["V2 MAE"] - result["V1 MAE"]
-    result["Lower RMSE in this run"] = result.apply(lambda r: "V2" if r["V2 − V1 RMSE"] < 0 else ("Tie" if abs(r["V2 − V1 RMSE"]) < 1e-12 else "V1"), axis=1)
-    result.index.name = "Subset"
-    return result.reset_index()
 
 
 if page == "Fleet overview":
@@ -139,26 +121,71 @@ elif page == "Model evaluation":
         st.plotly_chart(fig, width="stretch")
     st.caption("The saved test scores document the frozen evaluation run. New model variants are compared with validation experiments.")
 
-    v2_metrics_path = ROOT / "results" / "phase9" / "ensemble_v2_validation_metrics.csv"
-    if v2_metrics_path.is_file():
+    st.caption("Official C-MAPSS test evaluation snapshot • 707 engines across FD001–FD004.")
+
+    # Prefer the completed grouped nested training-only validation output.
+    nested_metrics_path = ROOT / "results" / "phase9" / "nested_validation" / "nested_cv_metrics.csv"
+    legacy_metrics_path = ROOT / "results" / "phase9" / "ensemble_v2_validation_metrics.csv"
+    if nested_metrics_path.is_file() or legacy_metrics_path.is_file():
         st.divider()
-        st.subheader("Adaptive ensemble experiment")
-        st.caption("V1 and V2 are compared on the existing engine-level validation cohort for continuity with earlier experiments.")
-        v2_metrics = pd.read_csv(v2_metrics_path)
+        st.subheader("Adaptive ensemble comparison")
+        if nested_metrics_path.is_file():
+            v2_metrics = pd.read_csv(nested_metrics_path)
+            v2_method = V2_NESTED_METHOD
+            st.caption(
+                "Grouped nested training-only validation • 5 outer folds and 3 inner OOF folds. "
+                "Official test labels are not part of this comparison."
+            )
+        else:
+            v2_metrics = pd.read_csv(legacy_metrics_path)
+            v2_method = V2_LEGACY_METHOD
+            st.caption(
+                "Earlier exploratory V1/V2 validation snapshot. The completed nested-validation "
+                "results will be shown automatically when available."
+            )
+
         v2_metrics = v2_metrics.loc[v2_metrics["subset"].isin(subsets)]
-        comparison = _v1_v2_comparison(v2_metrics, subsets)
+        comparison = build_v1_v2_comparison(v2_metrics, subsets, v2_method=v2_method)
         if not comparison.empty:
-            st.dataframe(comparison.round(4), width="stretch", hide_index=True)
+            st.dataframe(comparison.round(5), width="stretch", hide_index=True)
             delta_fig = px.bar(
-                comparison, x="Subset", y="V2 − V1 RMSE", color="Lower RMSE in this run",
-                title="RMSE change from V1 to V2 (cycles; values below zero favour V2)",
+                comparison,
+                x="Subset",
+                y="V2 − V1 RMSE",
+                color="Lower RMSE in this run",
+                title="Nested validation: V2 minus V1 RMSE",
+                color_discrete_map={"V1": "#4C78A8", "V2": "#54A24B", "Tie": "#9AA4B2"},
             )
             delta_fig.add_hline(y=0, line_dash="dash", line_color="#7b8798")
+            delta_fig.update_layout(
+                xaxis_title="C-MAPSS subset",
+                yaxis_title="RMSE difference in cycles (negative favours V2)",
+                legend_title="Lower RMSE",
+            )
             st.plotly_chart(delta_fig, width="stretch")
-        visible = [c for c in ["subset", "method", "rmse", "mae", "nasa_score_mean", "engine_macro_rmse", "engine_macro_mae"] if c in v2_metrics]
-        st.dataframe(v2_metrics[visible].round(4), width="stretch", hide_index=True)
-        with st.expander("How to interpret this comparison"):
-            st.write("This experiment reuses the existing Phase 6 validation cohort. It is useful for understanding the current V1/V2 behaviour; an independent model-selection estimate requires a separate grouped or nested validation design.")
+        else:
+            st.info("V1/V2 comparison rows are not available for the selected subsets.")
+
+        visible = [
+            c for c in [
+                "subset", "method", "rmse", "mae", "nasa_score_mean",
+                "engine_macro_rmse", "engine_macro_mae", "engines",
+            ] if c in v2_metrics.columns
+        ]
+        st.subheader("All validation methods")
+        if visible:
+            st.dataframe(
+                v2_metrics[visible].sort_values(["subset", "method"]).round(5),
+                width="stretch", hide_index=True,
+            )
+        with st.expander("How to read these results"):
+            st.write(
+                "Lower RMSE and MAE indicate smaller prediction errors. The nested-validation "
+                "comparison is training-only and is separate from the frozen official test "
+                "evaluation above. In the completed run, V2 selected zero shrinkage in every "
+                "outer fold and was practically equivalent to V1; no material V2 improvement "
+                "was demonstrated."
+            )
 
 elif page == "Ensemble behaviour":
     st.subheader("Expert predictions and adaptive blending")
